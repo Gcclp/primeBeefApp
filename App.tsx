@@ -1,77 +1,59 @@
 import { StatusBar } from 'expo-status-bar';
 import { Text, View, ImageBackground, Image } from 'react-native';
-import { styles } from './assets/src/style'
+import { styles } from './assets/src/style';
 import { NavigationContainer } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // Importando ícones
-import { useFonts, PlayfairDisplay_700Bold } from '@expo-google-fonts/playfair-display';
-import AppLoading from 'expo-app-loading';
-import { useState } from 'react';
-import { CheckBox } from 'react-native-elements';
+import { createStackNavigator } from '@react-navigation/stack';
+import { CarrinhoProvider } from './assets/src/carrinhoBase'; // Importe o contexto
 import { CarrinhoTela } from './assets/src/carrinho';
 import { CardapioTela } from './assets/src/cardapio';
+import { FinalizarPedido } from './assets/src/finalizarPedido';
+import LoginScreen from './assets/src/login';
 
-
-
-
-const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator();
 
 export default function App() {
   return (
-    <View style={styles.container}>
+    <CarrinhoProvider> {/* Envolva a aplicação com o CarrinhoProvider */}
+      <View style={styles.container}>
+        <StatusBar style="light" barStyle="light-content" />
 
-    <StatusBar style="light" barStyle="light-content"/>
-
-      {/* Cabeçalho Personalizado */}
-      <View style={{
-        width: '100%',
-        height: '35%',
-        flexDirection: 'column'}}>
-        <ImageBackground
-          source={require('./assets/PrimeBeefOfuscado.png')}
-          style={styles.headerBackground}
-        >
-          <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
-            <Image
-              source={require('./assets/PrimeBeef_Logo.jpg')} // Logo da hamburgueria
-              style={styles.logo}
-            />
-            <Text style={styles.titleLogo}>Prime Beef Hamburgueria</Text>
-            <Text style={styles.desc}>
-              Rua Deputado João Leopoldo Jacomel, 925
-            </Text>
-            <View style={{ backgroundColor: '#ffffff', borderRadius: 10, padding: 5}}>
-              <Text style={styles.horarios}>Horários de Funcionamento: Terça à Domingo das 18h às 23h</Text>
+        {/* Cabeçalho Personalizado */}
+        <View style={{ width: '100%', height: '35%', flexDirection: 'column' }}>
+          <ImageBackground
+            source={require('./assets/PrimeBeefOfuscado.png')}
+            style={styles.headerBackground}
+          >
+            <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+              <Image
+                source={require('./assets/PrimeBeef_Logo.jpg')} // Logo da hamburgueria
+                style={styles.logo}
+              />
+              <Text style={styles.titleLogo}>Prime Beef Hamburgueria</Text>
+              <Text style={styles.desc}>Rua Deputado João Leopoldo Jacomel, 925</Text>
+              <View style={{ backgroundColor: '#ffffff', borderRadius: 10, padding: 5 }}>
+                <Text style={styles.horarios}>Horários de Funcionamento: Terça à Domingo das 18h às 23h</Text>
+              </View>
             </View>
-          </View>
-        </ImageBackground>
+          </ImageBackground>
+        </View>
+
+        {/* Navegação */}
+        <NavigationContainer>
+          <Stack.Navigator
+            screenOptions={{
+              headerShown: false, // Oculta o cabeçalho padrão de cada tela
+            }}
+          >
+            {/* Tela inicial de Login */}
+            <Stack.Screen name="Login" component={LoginScreen} />
+
+            {/* Outras telas do aplicativo */}
+            <Stack.Screen name="Cardápio" component={CardapioTela} />
+            <Stack.Screen name="Carrinho" component={CarrinhoTela} />
+            <Stack.Screen name="Finalizar Pedido" component={FinalizarPedido} />
+          </Stack.Navigator>
+        </NavigationContainer>
       </View>
-
-      {/* Navegação */}
-      <NavigationContainer>
-      <Tab.Navigator
-        screenOptions={({ route }) => ({
-          tabBarStyle: { backgroundColor: '#333' },
-          tabBarActiveTintColor: '#FFFF00FF',
-          tabBarInactiveTintColor: '#fff',
-          tabBarIcon: ({ color, size }) => {
-            let iconName;
-
-            if (route.name === 'Carrinho') {
-              iconName = 'cart';
-            } else if (route.name === 'Cardápio') {
-              iconName = 'food';
-            }
-
-            return <Icon name={iconName} size={size} color={color} />;
-          },
-          headerShown: false, // Remove o cabeçalho de todas as telas
-        })}
-      >
-        <Tab.Screen name="Cardápio" component={CardapioTela} />
-        <Tab.Screen name="Carrinho" component={CarrinhoTela} />
-      </Tab.Navigator>
-    </NavigationContainer>
-    </View>
+    </CarrinhoProvider>
   );
 }

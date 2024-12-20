@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { View, ScrollView, Text, FlatList, Image, StyleSheet, TouchableOpacity, ImageBackground, Modal, TextInput } from 'react-native';
 import { CheckBox } from 'react-native-elements';
 import axios from 'axios';
+import { useCarrinho } from './carrinhoBase'; // Importe o hook do contexto
+import { useNavigation } from '@react-navigation/native';
 
 interface MenuItem {
   ID: number;
@@ -28,6 +30,8 @@ export const CardapioTela: React.FC = () => {
   const [observacoes, setObservacoes] = useState('');
   const [selectedAdicionais, setSelectedAdicionais] = useState<Adicional[]>([]);
   const [itemQuantity, setItemQuantity] = useState(1); // Estado inicial para a quantidade
+  const { carrinho ,adicionarAoCarrinho } = useCarrinho();
+  const navigation = useNavigation(); // Hook para acessar a navegação
 
 
 
@@ -126,6 +130,27 @@ export const CardapioTela: React.FC = () => {
     setItemQuantity(1); // Reseta a quantidade ao abrir o modal
   };
 
+  const addCarrinho = (item: MenuItem) => {
+    if (selectedItem) {
+      // Calculando o preço total do item
+      const totalItem = calculateTotalPrice() * itemQuantity;
+  
+      adicionarAoCarrinho({
+        id: selectedItem.ID,
+        imagem: selectedItem.Imagem,         // Adicionando o ID do item
+        nome: selectedItem.Nome,      // Nome do item
+        adicionais: selectedAdicionais,
+        quantidade: itemQuantity,
+        observacoes,
+        total: totalItem,             // Passando o total calculado
+      });
+    }
+    closeModal();
+  };
+  
+  
+
+
   const closeModal = () => {
     setIsModalVisible(false);
     setSelectedItem(null);
@@ -171,6 +196,7 @@ export const CardapioTela: React.FC = () => {
                   ID: adicional.id,
                   Nome: adicional.nome,
                   Preco: preco,
+                  Categoria: ''
                 })}
                 checkedIcon="dot-circle-o"
                 uncheckedIcon="circle-o" 
@@ -241,7 +267,7 @@ export const CardapioTela: React.FC = () => {
       <Text style={styles.totalPrice}>
         Total: R$ {(calculateTotalPrice() * itemQuantity).toFixed(2).replace('.', ',')}
       </Text>
-      <TouchableOpacity style={styles.botaoModal} onPress={closeModal}>
+      <TouchableOpacity style={styles.botaoModal} onPress={addCarrinho}>
         <Text style={{ color: '#ffffff', fontSize: 17, textAlign: 'center' }}>ADICIONAR AO CARRINHO</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.botaoModal} onPress={closeModal}>
@@ -254,7 +280,12 @@ export const CardapioTela: React.FC = () => {
     </View>
   </View>
 </Modal>
-
+    <TouchableOpacity
+        style={styles.cartButton}
+        onPress={() => navigation.navigate('Carrinho')}
+      >
+        <Text style={styles.cartButtonText}>Ir para o Carrinho</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -333,9 +364,8 @@ const styles = StyleSheet.create({
   modalScrollContainer: {
     backgroundColor: '#ffffff',
     borderRadius: 8,
-    padding: 20,
-    borderColor: '#000000',
-    borderWidth: 3
+    padding: 7,
+
   },
   modalImage: {
     width: '100%',
@@ -405,11 +435,6 @@ const styles = StyleSheet.create({
     borderColor: '#000000',
     borderWidth: 3,
   },
-  modalScrollContainer: {
-    backgroundColor: '#ffffff',
-    borderRadius: 8,
-    padding: 5,
-  },
 
   quantityContainer: {
     flexDirection: 'row',
@@ -437,7 +462,24 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
   },
   
-
+  cartButton: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    backgroundColor: '#4C544FFF',
+    padding: 15,
+    borderRadius: 50,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    elevation: 5,
+  },
+  cartButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
 });
 
 
