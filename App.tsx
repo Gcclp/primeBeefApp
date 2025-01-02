@@ -3,11 +3,15 @@ import { Text, View, ImageBackground, Image } from 'react-native';
 import { styles } from './assets/src/style';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+const Tab = createBottomTabNavigator();
 import { CarrinhoProvider } from './assets/src/carrinhoBase'; // Importe o contexto
 import { CarrinhoTela } from './assets/src/carrinho';
 import { CardapioTela } from './assets/src/cardapio';
 import { FinalizarPedido } from './assets/src/finalizarPedido';
+import { Ionicons } from '@expo/vector-icons'; // Ícones para Tab Navigator
 import LoginScreen from './assets/src/login';
+
 
 const Stack = createStackNavigator();
 
@@ -39,19 +43,34 @@ export default function App() {
 
         {/* Navegação */}
         <NavigationContainer>
-          <Stack.Navigator
-            screenOptions={{
-              headerShown: false, // Oculta o cabeçalho padrão de cada tela
-            }}
+        <Tab.Navigator
+            screenOptions={({ route }) => ({
+              headerShown: false,
+              tabBarActiveTintColor: '#FF4500', // Cor quando selecionado
+              tabBarInactiveTintColor: '#696969', // Cor quando não selecionado
+              tabBarStyle: {
+                backgroundColor: '#333', // Cor de fundo da barra
+                borderTopColor: '#FF4500', // Linha superior
+              },
+              tabBarIcon: ({ focused, color, size }) => {
+                let iconName;
+                if (route.name === 'Cardápio') {
+                  iconName = focused ? 'fast-food' : 'fast-food-outline';
+                } else if (route.name === 'Carrinho') {
+                  iconName = focused ? 'cart' : 'cart-outline';
+                } else if (route.name === 'Finalizar Pedido') {
+                  iconName = focused ? 'checkmark-circle' : 'checkmark-circle-outline';
+                }
+                return <Ionicons name={iconName} size={size} color={color} />;
+              },
+            })}
           >
-            {/* Tela inicial de Login */}
-            <Stack.Screen name="Login" component={LoginScreen} />
 
             {/* Outras telas do aplicativo */}
-            <Stack.Screen name="Cardápio" component={CardapioTela} />
-            <Stack.Screen name="Carrinho" component={CarrinhoTela} />
-            <Stack.Screen name="Finalizar Pedido" component={FinalizarPedido} />
-          </Stack.Navigator>
+            <Tab.Screen name="Cardápio" component={CardapioTela} />
+            <Tab.Screen name="Carrinho" component={CarrinhoTela} />
+            <Tab.Screen name="Finalizar Pedido" component={FinalizarPedido} />
+          </Tab.Navigator>
         </NavigationContainer>
       </View>
     </CarrinhoProvider>
